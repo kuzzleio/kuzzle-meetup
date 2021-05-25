@@ -3,7 +3,12 @@
     <p>
       This is a super important project using Kuzzle.
     </p>
-    <h1>{{ dataz }}</h1>
+    <p v-if="loading">Loading...</p>
+    <div v-else>
+      <button @click="fetchDataz">Fetch Dataz!</button>
+      <br>
+      <code>{{ dataz }}</code>
+    </div>
   </div>
 </template>
 
@@ -11,15 +16,37 @@
 import { Options, Vue } from 'vue-class-component'
 import { Kuzzle, WebSocket } from 'kuzzle-sdk'
 
+const kuzzle: Kuzzle = new Kuzzle(new WebSocket('localhost'))
+
 @Options({
   props: {
   }
 })
 export default class HelloWorld extends Vue {
-  dataz?: string;
+  dataz = '';
+  loading = false;
 
-  mounted (): void {
-    const kuzzle: Kuzzle = new Kuzzle(new WebSocket('localhost'))
+  async fetchDataz (): Promise<void> {
+    try {
+      console.log('fetching dataz...')
+      const resp = await kuzzle.document.search(
+        'tenant-shipment-jeodus',
+        'assets',
+        { sort: { '_kuzzle_info.createdAt': 'desc' } }, {
+          size: 1
+        })
+
+      console.log(resp)
+      this.dataz = resp.hits[0]._id
+    } catch (error) {
+      this.dataz = error.message
+    }
+  }
+
+  async mounted (): Promise<void> {
+    this.loading = true
+    await kuzzle.connect()
+    this.loading = false
   }
 }
 </script>
