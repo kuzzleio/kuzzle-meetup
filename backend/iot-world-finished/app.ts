@@ -11,8 +11,10 @@ const collections = {
         device: { type: 'keyword' },
 
         temperature: {
-          degree: { type: 'keyword' },
-          timestamp: { type: 'date' }
+          properties: {
+            degree: { type: 'keyword' },
+            timestamp: { type: 'date' }
+          }
         }
       }
     }
@@ -21,7 +23,7 @@ const collections = {
 
 app._support.mappings = collections;
 
-app.controller.register('payloads', {
+app.controller.register('payload', {
   actions: {
     temperature: {
       handler: async (request: KuzzleRequest) => {
@@ -39,7 +41,7 @@ app.controller.register('payloads', {
 
         return measure;
       },
-      http: [{ verb: 'post', path: 'payloads/temperature' }],
+      http: [{ verb: 'post', path: 'payload/temperature' }],
     }
   }
 });
