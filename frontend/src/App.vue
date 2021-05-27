@@ -1,18 +1,23 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld />
+  <div id="app">
+    <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
+    <!-- <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/> -->
+    <Map></Map>
+  </div>
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component'
-import HelloWorld from './components/HelloWorld.vue'
+import Vue from 'vue';
+import HelloWorld from './components/Base.vue';
+import Map from './components/Map.vue';
 
-@Options({
+export default Vue.extend({
+  name: 'App',
   components: {
-    HelloWorld
+    // HelloWorld
+    Map
   }
-})
-export default class App extends Vue {}
+});
 </script>
 
 <style>

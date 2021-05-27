@@ -13,42 +13,38 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component'
-import { Kuzzle, WebSocket } from 'kuzzle-sdk'
+import Vue from 'vue';
+import { DocumentNotification, Kuzzle, WebSocket } from 'kuzzle-sdk'
 
 const kuzzle: Kuzzle = new Kuzzle(new WebSocket('localhost'))
 
-@Options({
-  props: {
-  }
-})
-export default class HelloWorld extends Vue {
-  dataz = '';
-  loading = false;
-
-  async fetchDataz (): Promise<void> {
-    try {
-      console.log('fetching dataz...')
-      const resp = await kuzzle.document.search(
-        'tenant-shipment-jeodus',
-        'assets',
-        { sort: { '_kuzzle_info.createdAt': 'desc' } }, {
-          size: 1
-        })
-
-      console.log(resp)
-      this.dataz = resp.hits[0]._id
-    } catch (error) {
-      this.dataz = error.message
+export default Vue.extend({
+  name: 'HelloWorld',
+  data() {
+    return {
+      dataz: '',
+      loading: false
     }
-  }
-
-  async mounted (): Promise<void> {
+  },
+  methods: {
+    async fetchDataz() {
+      try {
+        console.log('fetching dataz...')
+        await kuzzle.realtime.subscribe('iot', 'measures', {}, (n) => {
+          const notif = <DocumentNotification>n
+          this.dataz = `temperature: ${notif.result._source.temperature.degree}`
+        })
+      } catch (error) {
+        this.dataz = error.message
+      }
+    }
+  },
+  async mounted() {
     this.loading = true
     await kuzzle.connect()
     this.loading = false
   }
-}
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

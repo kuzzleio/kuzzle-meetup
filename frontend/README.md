@@ -1,4 +1,4 @@
-# super-important-project-with-kuzzle
+# vue2-kuzzle-sandbox
 
 ## Project setup
 ```
