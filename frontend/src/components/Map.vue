@@ -1,17 +1,21 @@
 <template>
   <div class="hello">
-    <l-map ref="map" >
+    <p v-if="loading">Loading...</p>
+    <l-map v-else ref="map" >
       <l-tile-layer
         :url="url"
         :attribution="attribution"
         :options="tileOptions"
-      />
+        />
+      <l-marker 
+        v-if="marker !== null" 
+        :lat-lng="new L.latLng(marker.lat, marker.lng)"></l-marker>
     </l-map>
     <!-- <p>
       This is a super important project using Kuzzle.
     </p>
-    <p v-if="loading">Loading...</p>
-    <div v-else>
+    
+    <div >
       <button @click="fetchDataz">Fetch Dataz!</button>
       <br>
       <code>{{ dataz }}</code>
@@ -22,18 +26,33 @@
 <script lang="ts">
 import Vue from 'vue';
 import { DocumentNotification, Kuzzle, WebSocket } from 'kuzzle-sdk'
-import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
+import { LMap, LTileLayer, LMarker } from 'vue2-leaflet' //
+import "leaflet/dist/leaflet.css"
+import L from 'leaflet';
+import { Icon } from 'leaflet';
+
+type D = Icon.Default & {
+  _getIconUrl?: string;
+};
+
+delete (Icon.Default.prototype as D)._getIconUrl;
+Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+
 
 const kuzzle: Kuzzle = new Kuzzle(new WebSocket('localhost'))
 
 export default Vue.extend({
   name: 'HelloWorld',
   components: {
-    LMap, LTileLayer
+    LMap, LTileLayer, LMarker
   },
   data() {
     return {
-      dataz: '',
+      marker: null,
       loading: false,
       url: 'https://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -42,22 +61,17 @@ export default Vue.extend({
       }
     }
   },
-  methods: {
-    async fetchDataz() {
-      try {
-        console.log('fetching dataz...')
-        await kuzzle.realtime.subscribe('iot', 'measures', {}, (n) => {
-          const notif = <DocumentNotification>n
-          this.dataz = `temperature: ${notif.result._source.temperature.degree}`
-        })
-      } catch (error) {
-        this.dataz = error.message
-      }
+  computed: {
+    L() {
+      return L
     }
   },
   async mounted() {
     this.loading = true
     await kuzzle.connect()
+
+    // CODE HERE
+    
     this.loading = false
   }
 });
