@@ -16,7 +16,7 @@
 import Vue from 'vue';
 import { DocumentNotification, Kuzzle, WebSocket } from 'kuzzle-sdk'
 
-const kuzzle: Kuzzle = new Kuzzle(new WebSocket('localhost'))
+const kuzzle = new Kuzzle(new WebSocket('d45fa3e7199c.ngrok.io', { port: 80 }))
 
 export default Vue.extend({
   name: 'HelloWorld',
@@ -30,10 +30,9 @@ export default Vue.extend({
     async fetchDataz() {
       try {
         console.log('fetching dataz...')
-        await kuzzle.realtime.subscribe('iot', 'measures', {}, (n) => {
-          const notif = <DocumentNotification>n
-          this.dataz = `temperature: ${notif.result._source.temperature.degree}`
-        })
+        
+        // CODE HERE
+        
       } catch (error) {
         this.dataz = error.message
       }
@@ -41,7 +40,9 @@ export default Vue.extend({
   },
   async mounted() {
     this.loading = true
-    await kuzzle.connect()
+
+    // Connect to Kuzzle
+    
     this.loading = false
   }
 });

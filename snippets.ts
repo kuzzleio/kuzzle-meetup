@@ -1,3 +1,8 @@
+import { DocumentNotification, Kuzzle, WebSocket } from 'kuzzle-sdk'
+
+const kuzzle: Kuzzle = new Kuzzle(new WebSocket('localhost'))
+
+await kuzzle.connect();
 
 async function fetchLastMeasure() {
   const resp = await kuzzle.document.search(
